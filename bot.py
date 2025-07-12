@@ -1,40 +1,28 @@
 import os
 import telegram
+from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
+from telegram.ext import filters
 import schedule
 import time
-from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler, Filters
-from datetime import datetime
-import requests
 
-# Получаем переменные окружения
-TOKEN = os.getenv('TELEGRAM_TOKEN')
+# Получаем токен и chat_id из переменных окружения
+TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
-# Создаём экземпляр бота
-bot = telegram.Bot(token=TOKEN)
+# Создаем объект бота
+bot = telegram.Bot(token=TELEGRAM_TOKEN)
 
-# Тема, текст и описание (простой пример, нужно добавить больше логики для автоматизации)
+# Сообщение, которое бот будет отправлять
+message = "Привет, это твой Crunk-бот, который будет присылать тебе обновления!"
+
+# Функция для отправки сообщения
 def send_message():
-    topic = "Crunk Music Today!"
-    message = "Сегодня в нашем плане: рассказ о важности crunk-музыки в истории. Сегодня мы будем говорить о Lil Jon."
-    description = "Crunk music — это стиль, который родился в Атланте и стал важным элементом южной рэп-культуры."
+    bot.send_message(chat_id=CHAT_ID, text=message)
 
-    # Отправляем сообщение в чат
-    bot.send_message(chat_id=CHAT_ID, text=f"{topic}\n\n{message}\n\n{description}")
+# Планируем отправку сообщения каждый день в 5:00 утра
+schedule.every().day.at("05:00").do(send_message)
 
-# Функция для отправки сообщений по расписанию
-def job():
-    send_message()
-
-# Настройка расписания (ежедневно в 5 утра)
-schedule.every().day.at("05:00").do(job)
-
-# Запуск бота
-def main():
-    # Для тестов, чтобы бот работал в фоновом режиме
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
-
-if __name__ == "__main__":
-    main()
+# Бесконечный цикл для выполнения задачи по расписанию
+while True:
+    schedule.run_pending()
+    time.sleep(1)
